@@ -2517,5 +2517,17 @@ function xmldb_main_upgrade($oldversion) {
         upgrade_main_savepoint(true, 2021052500.69);
     }
 
+    if ($oldversion < 2021052500.73) {
+        // Add index to the sid field in the external_tokens table.
+        $table = new xmldb_table('external_tokens');
+        $index = new xmldb_index('sid', XMLDB_INDEX_NOTUNIQUE, ['sid']);
+
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        upgrade_main_savepoint(true, 2021052500.73);
+    }
+
     return true;
 }
