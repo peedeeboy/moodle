@@ -97,7 +97,7 @@ $areMoreRecordsToProcess = true;
 // Hacky workaround to issues raised in MDL-60174 and MDL-56132 with large recordsets
 // causing OOM issues with MySQLi connector
 while ($areMoreRecordsToProcess) {
-    $documents = $DB->get_recordset_sql($sql, null, $rowOffset, 100);
+    $documents = $DB->get_recordset_sql($sql, null, $rowOffset, 500);
 
     if (!$documents->valid()) {
         $areMoreRecordsToProcess = false;
@@ -112,9 +112,8 @@ while ($areMoreRecordsToProcess) {
         if (!empty($options['fix'])) {
             // Add gradeid to array, so we can remove DB entries later
             cli_write("Deleting...");
-            $grades[] = $document->itemid;
             if (!in_array($document->itemid, $grades)) {
-                array_push($grades, $document->itemid);
+                $grades[] = $document->itemid;
             }
             // Delete the file and DB entires.
             $fs->delete_area_files($document->contextid, $document->component, $document->filearea, $document->itemid);
@@ -124,7 +123,7 @@ while ($areMoreRecordsToProcess) {
 
     // Offset 100 rows if we are not deleting them, so we don't return the same 100 rows next loop
     if(empty($options['fix'])) {
-        $rowOffset += 100;
+        $rowOffset += 500;
     }
 
     $documents->close();
